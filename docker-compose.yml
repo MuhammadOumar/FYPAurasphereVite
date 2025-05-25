@@ -1,13 +1,14 @@
 version: '3.8'
+
 services:
   frontend:
     build: .
     ports:
       - "80:80"
-    depends_on:
-      - backend
     networks:
       - mern-network
+    depends_on:
+      - backend
 
   backend:
     build:
@@ -18,10 +19,11 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/SampleApp
       - NODE_ENV=production
-    depends_on:
-      - mongo
     networks:
       - mern-network
+    depends_on:
+      mongo:
+        condition: service_healthy
 
   mongo:
     image: mongo
@@ -31,6 +33,21 @@ services:
       - mongo-data:/data/db
     networks:
       - mern-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  selenium-tests:
+    build: ./selenium-tests
+    networks:
+      - mern-network
+    depends_on:
+      - frontend
+      - backend
+    environment:
+      - APP_URL=http://frontend
 
 networks:
   mern-network:

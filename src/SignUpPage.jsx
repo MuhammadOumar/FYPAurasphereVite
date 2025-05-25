@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import { Link } from "react-router-dom";
 
 const SignUpPage = () => {
@@ -8,6 +8,8 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
+
+  const [error, setError] = useState("");
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -20,19 +22,15 @@ const SignUpPage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     try {
-      // Send POST request to backend using axios
       const response = await axios.post("/api/users/register", formData);
       console.log("User registered:", response.data);
-
-      // Optionally, redirect to login page or home page after successful registration
-      window.location.href = "/login"; // Redirect to login page after successful registration
+      window.location.href = "/login";
     } catch (error) {
-      console.error(
-        "Registration failed:",
-        error.response?.data?.message || error.message
+      setError(
+        error.response?.data?.message || "Registration failed. Please try again."
       );
-      // Optionally, show error to the user (could display an error message in the UI)
     }
   };
 
@@ -88,6 +86,10 @@ const SignUpPage = () => {
             />
           </div>
 
+          {error && (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          )}
+
           <button
             type="submit"
             className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition duration-300"
@@ -97,7 +99,9 @@ const SignUpPage = () => {
         </form>
         <p className="mt-4 text-sm text-center text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:underline">Login here</Link>
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Login here
+          </Link>
         </p>
       </div>
     </div>
@@ -105,6 +109,3 @@ const SignUpPage = () => {
 };
 
 export default SignUpPage;
-
-
-// http://localhost:3010/
